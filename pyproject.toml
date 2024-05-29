@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Aaron Feigenbaum"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.2.0"
+langchain-groq = "^0.1.4"
+langchain-community = "^0.2.1"
+langchain-google-genai = "^1.0.5"
+playwright = "^1.44.0"
+html2text = "^2024.2.26"
+arxiv = "^2.1.0"
+pymupdf = "^1.24.4"
+loguru = "^0.7.2"
+
+[tool.poetry.scripts]
+url_summarizer = "url_summarizer.main:run"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
