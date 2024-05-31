@@ -17,6 +17,7 @@ html2text = "^2024.2.26"
 arxiv = "^2.1.0"
 pymupdf = "^1.24.4"
 loguru = "^0.7.2"
+youtube-transcript-api = "^0.6.2"
 
 [tool.poetry.scripts]
 url_summarizer = "url_summarizer.main:run"

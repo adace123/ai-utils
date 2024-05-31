@@ -34,7 +34,7 @@ def get_docs(url: str) -> Sequence[Document]:
     match (parsed_url.netloc, parsed_url.path):
         case "", _:
             raise ValueError(f"Not a valid url: {url}")
-        case "youtube.com" | "youtu.be", _:
+        case "www.youtube.com" | "youtube.com" | "youtu.be", _:
             loader = YoutubeLoader.from_youtube_url(url, add_video_info=False)
         case "news.ycombinator.com", _:
             loader = HNLoader(url)
