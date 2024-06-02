@@ -2,6 +2,8 @@ import argparse
 from typing import List, Sequence
 from urllib.parse import urlparse
 
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains.summarize import load_summarize_chain
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.manager import CallbackManager
 from langchain_core.documents import Document
@@ -69,7 +71,7 @@ def summarize(
             )
 
     prompt = ChatPromptTemplate.from_template("""
-    You are a helpful summarization assistant. Please provide a markdown format {verbosity} combined summary of the following summaries without including any references or external links. The summary should cover all the key points and main ideas presented in the original text, while also condensing the information into a concise and easy-to-understand format. Please ensure that the summary includes relevant details and examples that support the main ideas, while avoiding any unnecessary information or repetition. The length of the summary should be appropriate for the length and complexity of the original text, providing a clear and accurate overview without omitting any important information. Remember, DO NOT include any external references or metadata!
+    You are a helpful summarization assistant. Please provide a markdown format {verbosity} summary of the following content without including any references or external links. The summary should cover all the key points and main ideas presented in the original text, while also condensing the information into a concise and easy-to-understand format. Please ensure that the summary includes relevant details and examples that support the main ideas, while avoiding any unnecessary information or repetition. The length of the summary should be appropriate for the length and complexity of the original text, providing a clear and accurate overview without omitting any important information. Remember, DO NOT include any external references or metadata!
 
     {content}
     """)
