@@ -2,8 +2,6 @@ import argparse
 from typing import List, Sequence
 from urllib.parse import urlparse
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.manager import CallbackManager
 from langchain_core.documents import Document
