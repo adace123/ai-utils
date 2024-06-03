@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "app"
+name = "aiutils"
 version = "0.1.0"
 description = ""
 authors = ["Aaron Feigenbaum"]
@@ -15,12 +15,13 @@ langchain-google-genai = "^1.0.5"
 playwright = "^1.44.0"
 html2text = "^2024.2.26"
 arxiv = "^2.1.0"
-pymupdf = "^1.24.4"
 loguru = "^0.7.2"
 youtube-transcript-api = "^0.6.2"
+pypdf = "^4.2.0"
+setuptools = "^70.0.0"
 
 [tool.poetry.scripts]
-url_summarizer = "url_summarizer.main:run"
+url_summarizer = "aiutils.url_summarizer.main:run"
 
 [build-system]
 requires = ["poetry-core"]

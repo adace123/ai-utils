@@ -15,7 +15,7 @@ from langchain_community.document_loaders import (
     HNLoader,
 )
 from langchain_community.document_transformers import Html2TextTransformer
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.llms import Ollama
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -42,7 +42,7 @@ def get_docs(url: str) -> Sequence[Document]:
             arxiv_id = arxiv_id.split("/")[-1]
             loader = ArxivLoader(arxiv_id)
         case _, path if path.endswith(".pdf"):
-            loader = PyMuPDFLoader(url)
+            loader = PyPDFLoader(url)
         case _, _:
             loader = AsyncChromiumHtmlLoader([url])
 
