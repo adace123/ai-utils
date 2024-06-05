@@ -1,15 +1,15 @@
+import sys
 import argparse
 from typing import List, Sequence
 from urllib.parse import urlparse
 
-from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.callbacks.manager import CallbackManager
+import httpx
 from langchain_core.documents import Document
+from langchain_core.document_loaders import BaseLoader
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import (
-    ArxivLoader,
     AsyncChromiumLoader,
     YoutubeLoader,
     HNLoader,
@@ -29,7 +29,36 @@ class AsyncChromiumHtmlLoader(AsyncChromiumLoader):
         return docs
 
 
-def get_docs(url: str) -> Sequence[Document]:
+class JinaReaderLoader(BaseLoader):
+    def __init__(self, url: str):
+        self.url = url
+
+    def load(self):
+        response = httpx.get(f"https://r.jina.ai/{self.url}")
+        response.raise_for_status()
+        return [
+            Document(
+                page_content=response.text,
+                metadata={"status_code": response.status_code},
+            )
+        ]
+
+
+class WebLoader(BaseLoader):
+    def __init__(self, url: str) -> None:
+        self.url = url
+
+    def load(self) -> List[Document]:
+        try:
+            return JinaReaderLoader(self.url).load()
+        except httpx.HTTPError as e:
+            logger.error(
+                f"Failed to fetch content from Jina for URL {self.url}: {e}. Falling back to AsyncChromiumHtmlLoader."
+            )
+            return AsyncChromiumHtmlLoader([self.url]).load()
+
+
+def get_docs(url: str, is_pdf_url: bool = False) -> Sequence[Document]:
     parsed_url = urlparse(url)
     match (parsed_url.netloc, parsed_url.path):
         case "", _:
@@ -38,13 +67,10 @@ def get_docs(url: str) -> Sequence[Document]:
             loader = YoutubeLoader.from_youtube_url(url, add_video_info=False)
         case "news.ycombinator.com", _:
             loader = HNLoader(url)
-        case "arxiv.org", arxiv_id:
-            arxiv_id = arxiv_id.split("/")[-1]
-            loader = ArxivLoader(arxiv_id)
-        case _, path if path.endswith(".pdf"):
+        case _, path if path.endswith(".pdf") or is_pdf_url:
             loader = PyPDFLoader(url)
         case _, _:
-            loader = AsyncChromiumHtmlLoader([url])
+            loader = WebLoader(url)
 
     logger.debug(f"Using loader {loader.__class__.__name__} for URL {url}")
     docs = loader.load()
@@ -59,14 +85,12 @@ def summarize(
 ):
     match model:
         case "groq":
-            llm = ChatGroq(model_name="llama3-8b-8192")
+            llm = ChatGroq(model_name="mixtral-8x7b-32768")
         case "gemini":
             llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
         case _:
-            llm = Ollama(
-                model=model,
-                callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            )
+            llm = Ollama(model=model)
+    logger.debug(f"Using model {llm.__class__.__name__}")
 
     prompt = ChatPromptTemplate.from_template("""
     You are a helpful summarization assistant. Please provide a markdown format {verbosity} summary of the following content without including any references or external links. The summary should cover all the key points and main ideas presented in the original text, while also condensing the information into a concise and easy-to-understand format. Please ensure that the summary includes relevant details and examples that support the main ideas, while avoiding any unnecessary information or repetition. The length of the summary should be appropriate for the length and complexity of the original text, providing a clear and accurate overview without omitting any important information. Remember, DO NOT include any external references or metadata!
@@ -76,12 +100,15 @@ def summarize(
     parser = StrOutputParser()
     chain = prompt | llm | parser
     verbosity = "detailed" if verbose else "concise"
-    return chain.invoke({"content": docs, "verbosity": verbosity})
+    for token in chain.stream({"content": docs, "verbosity": verbosity}):
+        sys.stdout.write(token)
+        sys.stdout.flush()
 
 
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("url", type=str, help="URL to summarize")
+    parser.add_argument("--pdf", action="store_true", help="Force use of PDF loader")
     parser.add_argument(
         "--model",
         "-m",
@@ -97,6 +124,6 @@ def run():
     )
     parser.add_argument("--debug", dest="debug")
     args = parser.parse_args()
-    docs = get_docs(url=args.url)
+    docs = get_docs(url=args.url, is_pdf_url=args.pdf)
 
     summarize(docs=docs, verbose=args.verbosity, model=args.model)
