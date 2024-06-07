@@ -38,9 +38,6 @@
               hash = "sha256-LXF3R9zfWylvihP2M8N94/IlgifwxUwKJFhtvcXEPB0=";
             };
           });
-          arxiv = prev.arxiv.overridePythonAttrs (old: {
-            buildInputs = [setuptools];
-          });
         });
       };
     });
