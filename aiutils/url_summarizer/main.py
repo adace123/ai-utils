@@ -81,7 +81,7 @@ def get_docs(url: str, is_pdf_url: bool = False) -> Sequence[Document]:
 def summarize(
     docs: Sequence[Document],
     verbose: bool = False,
-    model: str = "llama3",
+    model: str = "gemma2",
 ):
     match model:
         case "groq":
@@ -112,7 +112,7 @@ def run():
     parser.add_argument(
         "--model",
         "-m",
-        default="llama3",
+        default="gemma2",
         help="Choose model to use: groq, gemini or any ollama model",
     )
     parser.add_argument(
