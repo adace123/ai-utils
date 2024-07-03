@@ -22,6 +22,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from loguru import logger
 
 
+MODELS = {
+    "groq": "mixtral-8x7b-32768",
+    "gemini": "gemini-1.5-flash-latest",
+}
+
+
 class AsyncChromiumHtmlLoader(AsyncChromiumLoader):
     def load(self) -> List[Document]:
         docs = super().load()
@@ -85,12 +91,12 @@ def summarize(
 ):
     match model:
         case "groq":
-            llm = ChatGroq(model_name="mixtral-8x7b-32768")
+            llm = ChatGroq(model_name=MODELS["groq"])
         case "gemini":
-            llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
+            llm = ChatGoogleGenerativeAI(model=MODELS["gemini"])
         case _:
             llm = Ollama(model=model)
-    logger.debug(f"Using model {llm.__class__.__name__}")
+    logger.debug(f"Using model {llm.__class__.__name__} / {MODELS.get(model, model)}")
 
     prompt = ChatPromptTemplate.from_template("""
     You are a helpful summarization assistant. Please provide a markdown format {verbosity} summary of the following content without including any references or external links. The summary should cover all the key points and main ideas presented in the original text, while also condensing the information into a concise and easy-to-understand format. Please ensure that the summary includes relevant details and examples that support the main ideas, while avoiding any unnecessary information or repetition. The length of the summary should be appropriate for the length and complexity of the original text, providing a clear and accurate overview without omitting any important information. Remember, DO NOT include any external references or metadata!
