@@ -87,7 +87,7 @@ def get_docs(url: str, is_pdf_url: bool = False) -> Sequence[Document]:
 def summarize(
     docs: Sequence[Document],
     verbose: bool = False,
-    model: str = "gemma2",
+    model: str = "llama3.1",
 ):
     match model:
         case "groq":
