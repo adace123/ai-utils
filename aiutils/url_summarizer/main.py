@@ -118,7 +118,7 @@ def run():
     parser.add_argument(
         "--model",
         "-m",
-        default="gemma2",
+        default="llama3.1",
         help="Choose model to use: groq, gemini or any ollama model",
     )
     parser.add_argument(
