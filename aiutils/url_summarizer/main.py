@@ -1,33 +1,31 @@
-import sys
 import argparse
+import sys
 from typing import List, Sequence
 from urllib.parse import urlparse
 
 import httpx
-from langchain_core.documents import Document
-from langchain_core.document_loaders import BaseLoader
-from langchain_groq import ChatGroq
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import (
     AsyncChromiumLoader,
-    YoutubeLoader,
     HNLoader,
+    PyPDFLoader,
+    YoutubeLoader,
 )
 from langchain_community.document_transformers import Html2TextTransformer
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.llms import Ollama
+from langchain_core.document_loaders import BaseLoader
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
-
+from langchain_groq import ChatGroq
 from loguru import logger
 
-
 MODELS = {
-    "groq": "mixtral-8x7b-32768",
+    "groq": "llama-3.1-70b-versatile",
     "gemini": "gemini-1.5-flash-latest",
 }
 
-DEFAULT_OLLAMA_MODEL = "llama3.1"
+DEFAULT_OLLAMA_MODEL = "llama3.2"
 
 
 class AsyncChromiumHtmlLoader(AsyncChromiumLoader):
